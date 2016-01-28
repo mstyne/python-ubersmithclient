@@ -1,0 +1,18 @@
+language: python
+python:
+- '2.7'
+- '3.4'
+install:
+- pip install -r requirements.txt
+- pip install -r test-requirements.txt
+script: nosetests
+deploy:
+  provider: pypi
+  skip_cleanup: true
+  user: Marx314
+  password:
+    secure: YLbDISgal5kHZ6D6Gh5bw2V1oDzC5N15/K6NIJEsmd4F5NbOLbhWFYM+0vBkc3i6v2Rz+iUhc0FEBZpn6hPU+Ecf3KxSS4/Rx0Y0JrEf/oEWAd6NbMziv8dZNZe/py9f+CZ/3haTF11CR4B/G4kBuu4PvtkNjsxik/xfDqaldkpe43c4YJvycURZ1ycaJPQVdOUjEEiIWofN/ilqMdsHA7MgddGqaJGAwj8nHmQPJ3HlowJtMeJgeu8ZWaHlocPe2lUTenaaIDtSY/fsADKp6P0beDF5ETyqpWRdWFfLIWy1Z1sGQ5u4Sg5566Ry9F5h3JT1UjoCPyzmLm8R2YZJh+oeqEDhSJLJb6oqPlqjCcauzxpDr5KQ+Qk/RhxiZLwXdtzFnfvWEEu6rR1GGSwPLrxDTEm+UNtjKl7WroEqfN3QocRGVe37VCKBZTdu0chfFlUZRXAym/k1daXo0vtZWEelOPCJN30VEsL2mb8ZoRGaM2DapNJL9GW10TU5rccmE9+F/b8nzlxlhAULQS9AHOEH1xX0gNVqIUi75aE4l2j6D3l5dRPGHBqj/QCd4gf6nJkq2O8a1KWR+W8gpWrqm+m/Jj54DBtMezNIKT5p8/d+/Dpog0azATDQhmEOmqiN03rDmzrKeGSYMPALaWJT4PpwEe9tAnnM+65zSJUzers=
+  on:
+    tags: true
+    python: 3.4
+    repo: Marx314/python-ubersmithclient
