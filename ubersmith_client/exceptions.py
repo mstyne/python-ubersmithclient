@@ -19,6 +19,9 @@ class UbersmithException(Exception):
         self.code = code
         self.message = message
 
+    def __str__(self):
+        return 'Error code {0} - message: {1}'.format(self.code, self.message)
+
 
 def get_exception_for(status_code):
     exception_class = {
