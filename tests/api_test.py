@@ -13,7 +13,9 @@
 # limitations under the License.
 import base64
 import unittest
+import requests
 
+from flexmock import flexmock, flexmock_teardown
 from hamcrest import assert_that, equal_to, raises, calling
 import requests_mock
 from requests_mock.exceptions import NoMockAddress
@@ -27,6 +29,9 @@ class UbersmithIWebTest(unittest.TestCase):
         self.url = 'http://ubersmith.example.org/'
         self.username = 'admin'
         self.password = 'test'
+
+    def tearDown(self):
+        flexmock_teardown()
 
     @requests_mock.mock()
     def test_api_method_returns_without_arguments(self, request_mock):
@@ -172,6 +177,28 @@ class UbersmithIWebTest(unittest.TestCase):
         ubersmith_api = api.init(self.url, self.username, self.password)
 
         assert_that(calling(ubersmith_api.support.ticket_submit.http_post), raises(UnknownError))
+
+    def test_api_http_timeout(self):
+        payload = dict(status=True, data="plop")
+        response = flexmock(status_code=200, json=lambda: payload)
+        ubersmith_api = api.init(self.url, self.username, self.password, 666)
+
+        flexmock(requests).should_receive("get").with_args(
+            url=self.url, auth=(self.username, self.password), timeout=666, params={'method': 'uber.method_list'}
+        ).and_return(response)
+
+        ubersmith_api.uber.method_list()
+
+    def test_api_http_default_timeout(self):
+        payload = dict(status=True, data="plop")
+        response = flexmock(status_code=200, json=lambda: payload)
+        ubersmith_api = api.init(self.url, self.username, self.password)
+
+        flexmock(requests).should_receive("get").with_args(
+            url=self.url, auth=(self.username, self.password), timeout=60, params={'method': 'uber.method_list'}
+        ).and_return(response)
+
+        ubersmith_api.uber.method_list()
 
     @requests_mock.mock()
     def test_api_http_post_method_raises_on_result_500(self, request_mock):

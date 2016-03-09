@@ -16,28 +16,30 @@ import requests
 from ubersmith_client.exceptions import UbersmithException, get_exception_for
 
 
-def init(url, user, password):
-    return UbersmithApi(url, user, password)
+def init(url, user, password, timeout=60):
+    return UbersmithApi(url, user, password, timeout)
 
 
 class UbersmithApi(object):
-    def __init__(self, url, user, password):
+    def __init__(self, url, user, password, timeout):
         self.url = url
         self.user = user
         self.password = password
+        self.timeout = timeout
 
     def __getattr__(self, module):
-        return UbersmithRequest(self.url, self.user, self.password, module)
+        return UbersmithRequest(self.url, self.user, self.password, module, self.timeout)
 
 
 class UbersmithRequest(object):
-    def __init__(self, url, user, password, module):
+    def __init__(self, url, user, password, module, timeout):
         self.url = url
         self.user = user
         self.password = password
         self.module = module
         self.methods = []
         self.http_methods = {'GET': 'get', 'POST': 'post'}
+        self.timeout = timeout
 
     def __getattr__(self, function):
         self.methods.append(function)
@@ -48,7 +50,13 @@ class UbersmithRequest(object):
 
     def process_request(self, http_method, **kwargs):
         callable_http_method = getattr(requests, http_method)
-        response = callable_http_method(self.url, auth=(self.user, self.password), **kwargs)
+
+        response = callable_http_method(
+            self.url,
+            auth=(self.user, self.password),
+            timeout=self.timeout,
+            **kwargs
+        )
 
         if response.status_code < 200 or response.status_code >= 400:
             raise get_exception_for(status_code=response.status_code)
