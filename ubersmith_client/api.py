@@ -16,23 +16,24 @@ import requests
 from ubersmith_client.exceptions import UbersmithException, get_exception_for
 
 
-def init(url, user, password, timeout=60):
-    return UbersmithApi(url, user, password, timeout)
+def init(url, user, password, timeout=60, use_http_post=False):
+    return UbersmithApi(url, user, password, timeout, use_http_post)
 
 
 class UbersmithApi(object):
-    def __init__(self, url, user, password, timeout):
+    def __init__(self, url, user, password, timeout, use_http_post):
         self.url = url
         self.user = user
         self.password = password
         self.timeout = timeout
+        self.use_http_post = use_http_post
 
     def __getattr__(self, module):
-        return UbersmithRequest(self.url, self.user, self.password, module, self.timeout)
+        return UbersmithRequest(self.url, self.user, self.password, module, self.timeout, self.use_http_post)
 
 
 class UbersmithRequest(object):
-    def __init__(self, url, user, password, module, timeout):
+    def __init__(self, url, user, password, module, timeout, use_http_post):
         self.url = url
         self.user = user
         self.password = password
@@ -40,13 +41,17 @@ class UbersmithRequest(object):
         self.methods = []
         self.http_methods = {'GET': 'get', 'POST': 'post'}
         self.timeout = timeout
+        self.use_http_post = use_http_post
 
     def __getattr__(self, function):
         self.methods.append(function)
         return self
 
     def __call__(self, **kwargs):
-        return self.http_get(**kwargs)
+        if self.use_http_post:
+            return self.http_post(**kwargs)
+        else:
+            return self.http_get(**kwargs)
 
     def process_request(self, http_method, **kwargs):
         callable_http_method = getattr(requests, http_method)
