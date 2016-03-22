@@ -22,6 +22,7 @@ from hamcrest import assert_that, equal_to, raises, calling
 import requests_mock
 from requests_mock.exceptions import NoMockAddress
 import ubersmith_client
+from ubersmith_client import api
 from ubersmith_client.exceptions import BadRequest, UnknownError, Forbidden, NotFound, Unauthorized
 from tests.ubersmith_json.response_data_structure import a_response_data
 
@@ -48,7 +49,7 @@ class UbersmithIWebTest(unittest.TestCase):
         data = a_response_data(data=json_data)
         self.expect_a_ubersmith_call(request_mock, "client.list", data=data)
 
-        ubersmith_api = ubersmith_client.api.init(self.url, self.username, self.password)
+        ubersmith_api = api.init(self.url, self.username, self.password)
         response = ubersmith_api.client.list()
 
         assert_that(response, equal_to(json_data))
