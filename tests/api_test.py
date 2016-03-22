@@ -77,7 +77,13 @@ class UbersmithIWebTest(unittest.TestCase):
         ubersmith_api = ubersmith_client.api.init(self.url, self.username, self.password)
 
         self.expect_a_ubersmith_call(request_mock, method="client.miss", data=data)
-        assert_that(calling(ubersmith_api.client.miss), raises(ubersmith_client.exceptions.UbersmithException))
+
+        with self.assertRaises(ubersmith_client.exceptions.UbersmithException) as cm:
+            ubersmith_api.client.miss()
+
+        catched_exception = cm.exception
+        assert_that(catched_exception.code, equal_to(1))
+        assert_that(catched_exception.message, equal_to('invalid method specified: client.miss'))
 
     @requests_mock.mock()
     def test_api_raises_exception_for_invalid_status_code(self, request_mock):
