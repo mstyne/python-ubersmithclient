@@ -1,4 +1,3 @@
-# Copyright 2016 Internap.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -11,21 +10,18 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import requests
+
+from ubersmith_client.ubersmith_request import UbersmithRequest
 
 
-def a_response_data(**overrides):
-    return apply_kwargs(overrides, {
-        "status": True,
-        "error_code": None,
-        "error_message": "",
-        "data": {},
-    })
+class UbersmithRequestPost(UbersmithRequest):
+    def __call__(self, **kwargs):
+        self._build_request_params(kwargs)
 
+        response = requests.post(url=self.url,
+                                 auth=(self.user, self.password),
+                                 timeout=self.timeout,
+                                 data=kwargs)
 
-def apply_kwargs(kwargs, default_kwargs):
-    for k, v in kwargs.items():
-        if isinstance(v, dict):
-            default_kwargs[k] = apply_kwargs(v, default_kwargs[k])
-        else:
-            default_kwargs[k] = v
-    return default_kwargs
+        return UbersmithRequest.process_ubersmith_response(response)
