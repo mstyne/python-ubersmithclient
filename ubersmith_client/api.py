@@ -69,8 +69,8 @@ class UbersmithRequest(object):
         response_json = response.json()
         if not response_json['status']:
             raise UbersmithException(
-                500,
-                "error {0}, {1}".format(response_json['error_code'], response_json['error_message'])
+                response_json['error_code'],
+                response_json['error_message']
             )
 
         return response.json()["data"]
