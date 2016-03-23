@@ -11,10 +11,3 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-def apply_kwargs(kwargs, default_kwargs):
-    for k, v in kwargs.items():
-        if isinstance(v, dict):
-            default_kwargs[k] = apply_kwargs(v, default_kwargs[k])
-        else:
-            default_kwargs[k] = v
-    return default_kwargs

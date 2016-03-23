@@ -1,4 +1,3 @@
 nose==1.2.1
-requests-mock==0.7.0
 pyhamcrest==1.8.1
-flexmock
+mock==1.3.0
