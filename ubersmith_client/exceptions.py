@@ -70,4 +70,4 @@ class UbersmithConnectionError(UbersmithException):
 class UbersmithTimeout(UbersmithException):
     def __init__(self, url, timeout):
         super(UbersmithTimeout, self)\
-            .__init__(message='Trying to connect to {url} times out after {timeout}'.format(url=url, timeout=timeout))
+            .__init__(message='Trying to connect to {url} timed out after {timeout} seconds'.format(url=url, timeout=timeout))

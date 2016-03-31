@@ -16,10 +16,11 @@ import unittest
 import ubersmith_client
 from mock import Mock, patch
 
-from hamcrest import assert_that, raises, calling
+from hamcrest import assert_that, raises, calling, equal_to
 from requests.exceptions import ConnectionError, Timeout
 
-from ubersmith_client.exceptions import UbersmithException, BadRequest, UnknownError, Forbidden, NotFound, Unauthorized, UbersmithConnectionError, \
+from ubersmith_client.exceptions import UbersmithException, BadRequest, UnknownError, Forbidden, NotFound, Unauthorized, \
+    UbersmithConnectionError, \
     UbersmithTimeout
 from tests.ubersmith_json.response_data_structure import a_response_data
 from ubersmith_client.ubersmith_request import UbersmithRequest
@@ -32,8 +33,8 @@ class UbersmithRequestTest(unittest.TestCase):
         self.password = 'test'
 
     def test_process_ubersmith_response(self):
-        response = Mock()
-        response.status_code = 200
+        response = Mock(status_code=200, headers={"content-type": "application/json"})
+
         json_data = {
             'client_id': '1',
             'first': 'Rick',
@@ -45,9 +46,12 @@ class UbersmithRequestTest(unittest.TestCase):
 
         self.assertDictEqual(json_data, UbersmithRequest.process_ubersmith_response(response))
 
+    def test_process_ubersmith_response_not_application_json(self):
+        response = Mock(status_code=200, headers={"content-type": "text/html"}, content="42")
+        assert_that(response.content, equal_to(UbersmithRequest.process_ubersmith_response(response)))
+
     def test_process_ubersmith_response_raise_exception(self):
-        response = Mock()
-        response.status_code = 400
+        response = Mock(status_code=400, headers={"content-type": "application/json"})
         assert_that(calling(UbersmithRequest.process_ubersmith_response).with_args(response), raises(BadRequest))
 
         response.status_code = 401

@@ -65,7 +65,7 @@ class UbersmithRequestGetTest(unittest.TestCase):
         expected_call()
 
     def expect_a_ubersmith_call(self, requests_mock, returning=None, **kwargs):
-        response = MagicMock(status_code=200)
+        response = MagicMock(status_code=200, headers={"content-type": "application/json"})
         requests_mock.get = MagicMock(return_value=response)
         response.json = MagicMock(return_value=returning)
 

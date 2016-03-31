@@ -76,7 +76,7 @@ class UbersmithRequestPostTest(unittest.TestCase):
         assert_that(calling(ubersmith_api.client.miss), raises(ubersmith_client.exceptions.UbersmithException))
 
     def expect_a_ubersmith_call_post(self, requests_mock, returning=None, status_code=200, **kwargs):
-        response = MagicMock(status_code=status_code)
+        response = MagicMock(status_code=status_code, headers={"content-type": "application/json"})
         requests_mock.post = MagicMock(return_value=response)
         response.json = MagicMock(return_value=returning)
 
