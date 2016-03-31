@@ -12,12 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import unittest
-from mock import patch, MagicMock
+from hamcrest import assert_that, raises, calling
+from mock import Mock
+from requests.exceptions import ConnectionError, Timeout
 
-from hamcrest import assert_that, equal_to, raises, calling
-
-from tests.ubersmith_json.response_data_structure import a_response_data
 import ubersmith_client
+from ubersmith_client.exceptions import UbersmithConnectionError, UbersmithTimeout
 
 
 class ApiTest(unittest.TestCase):
@@ -26,110 +26,14 @@ class ApiTest(unittest.TestCase):
         self.username = 'admin'
         self.password = 'test'
 
-        self.auth = (self.username, self.password)
-        self.timeout = 60
+    def test_api_method_returns_handle_connection_error_exception(self):
+        ubersmith_api = ubersmith_client.api.init(self.url, self.username, self.password)
+        ubersmith_api.ubersmith_request = Mock(side_effect=ConnectionError())
 
-    @patch('ubersmith_client.ubersmith_request_get.requests')
-    def test_api_get_method_returns_without_arguments(self, requests_mock):
-        json_data = {
-            'company': 'council of ricks'
-        }
-        expected_call = self.expect_a_ubersmith_call(requests_mock=requests_mock,
-                                                     method='client.list',
-                                                     returning=a_response_data(data=json_data))
+        assert_that(calling(ubersmith_api.__getattr__).with_args("client"), raises(UbersmithConnectionError))
 
-        ubersmith_api = ubersmith_client.api.init(self.url, self.username, self.password, use_http_get=True)
-        response = ubersmith_api.client.list()
+    def test_api_method_returns_handle_timeout_exception(self):
+        ubersmith_api = ubersmith_client.api.init(self.url, self.username, self.password)
+        ubersmith_api.ubersmith_request = Mock(side_effect=Timeout())
 
-        assert_that(response, equal_to(json_data))
-
-        expected_call()
-
-    @patch('ubersmith_client.ubersmith_request_get.requests')
-    def test_api_get_method_returns_with_arguments(self, request_mock):
-        json_data = {
-            'group_id': '1',
-            'client_id': '30001',
-            'assignment_count': '1'
-        }
-        expected_call = self.expect_a_ubersmith_call(requests_mock=request_mock,
-                                                     method='device.ip_group_list',
-                                                     fac_id=1,
-                                                     client_id=30001,
-                                                     returning=a_response_data(data=json_data))
-
-        ubersmith_api = ubersmith_client.api.init(self.url, self.username, self.password, use_http_get=True)
-        response = ubersmith_api.device.ip_group_list(fac_id=1, client_id=30001)
-
-        assert_that(response, equal_to(json_data))
-
-        expected_call()
-
-    @patch('ubersmith_client.ubersmith_request_post.requests')
-    def test_api_post_method_returns_with_arguments(self, request_mock):
-        json_data = {
-            'group_id': '1',
-            'client_id': '30001',
-            'assignment_count': '1'
-        }
-        expected_call = self.expect_a_ubersmith_call_post(requests_mock=request_mock,
-                                                          method='device.ip_group_list',
-                                                          fac_id=1,
-                                                          client_id=30001,
-                                                          returning=a_response_data(data=json_data))
-
-        ubersmith_api = ubersmith_client.api.init(self.url, self.username, self.password, use_http_get=False)
-        response = ubersmith_api.device.ip_group_list(fac_id=1, client_id=30001)
-
-        assert_that(response, equal_to(json_data))
-
-        expected_call()
-
-    @patch('ubersmith_client.ubersmith_request_post.requests')
-    def test_api_post_method_returns_without_arguments(self, requests_mock):
-        json_data = {
-            'company': 'schwifty'
-        }
-        expected_call = self.expect_a_ubersmith_call_post(requests_mock=requests_mock,
-                                                          method='client.list',
-                                                          returning=a_response_data(data=json_data))
-
-        ubersmith_api = ubersmith_client.api.init(self.url, self.username, self.password, use_http_get=False)
-        response = ubersmith_api.client.list()
-
-        assert_that(response, equal_to(json_data))
-
-        expected_call()
-
-    @patch('ubersmith_client.ubersmith_request_post.requests')
-    def test_api_raises_exception_with_if_data_status_is_false(self, requests_mock):
-        data = a_response_data(status=False,
-                               error_code=1,
-                               error_message='invalid method specified: client.miss',
-                               data="schwifty")
-        ubersmith_api = ubersmith_client.api.init(self.url, self.username, self.password, use_http_get=False)
-
-        self.expect_a_ubersmith_call_post(requests_mock, method='client.miss', returning=data)
-        assert_that(calling(ubersmith_api.client.miss), raises(ubersmith_client.exceptions.UbersmithException))
-
-    def expect_a_ubersmith_call(self, requests_mock, returning=None, **kwargs):
-        response = MagicMock(status_code=200)
-        requests_mock.get = MagicMock(return_value=response)
-        response.json = MagicMock(return_value=returning)
-
-        def assert_called_with():
-            requests_mock.get.assert_called_with(auth=self.auth, params=kwargs, timeout=self.timeout, url=self.url)
-            response.json.assert_called_with()
-
-        return assert_called_with
-
-    def expect_a_ubersmith_call_post(self, requests_mock, returning=None, status_code=200, **kwargs):
-        response = MagicMock(status_code=status_code)
-        requests_mock.post = MagicMock(return_value=response)
-        response.json = MagicMock(return_value=returning)
-
-        def assert_called_with():
-            requests_mock.post.assert_called_with(auth=self.auth, timeout=self.timeout, url=self.url, data=kwargs)
-            response.json.assert_called_with()
-
-        return assert_called_with
+        assert_that(calling(ubersmith_api.__getattr__).with_args("client"), raises(UbersmithTimeout))
