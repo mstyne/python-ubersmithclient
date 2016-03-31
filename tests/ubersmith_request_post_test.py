@@ -12,9 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import unittest
+
 from hamcrest import assert_that, equal_to, calling, raises
 from mock import patch, MagicMock
-
 import ubersmith_client
 from tests.ubersmith_json.response_data_structure import a_response_data
 
@@ -69,14 +69,14 @@ class UbersmithRequestPostTest(unittest.TestCase):
         data = a_response_data(status=False,
                                error_code=1,
                                error_message='invalid method specified: client.miss',
-                               data="schwifty")
+                               data='schwifty')
         ubersmith_api = ubersmith_client.api.init(self.url, self.username, self.password)
 
         self.expect_a_ubersmith_call_post(requests_mock, method='client.miss', returning=data)
         assert_that(calling(ubersmith_api.client.miss), raises(ubersmith_client.exceptions.UbersmithException))
 
     def expect_a_ubersmith_call_post(self, requests_mock, returning=None, status_code=200, **kwargs):
-        response = MagicMock(status_code=status_code, headers={"content-type": "application/json"})
+        response = MagicMock(status_code=status_code, headers={'content-type': 'application/json'})
         requests_mock.post = MagicMock(return_value=response)
         response.json = MagicMock(return_value=returning)
 

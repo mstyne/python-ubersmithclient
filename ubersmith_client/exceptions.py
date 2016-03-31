@@ -64,10 +64,11 @@ class UnknownError(UbersmithException):
 
 class UbersmithConnectionError(UbersmithException):
     def __init__(self, url):
-        super(UbersmithConnectionError, self).__init__(message="Could not connect to {0}".format(url))
+        super(UbersmithConnectionError, self).__init__(message='Could not connect to {0}'.format(url))
 
 
 class UbersmithTimeout(UbersmithException):
     def __init__(self, url, timeout):
-        super(UbersmithTimeout, self)\
-            .__init__(message='Trying to connect to {url} timed out after {timeout} seconds'.format(url=url, timeout=timeout))
+        super(UbersmithTimeout, self) \
+            .__init__(
+            message='Trying to connect to {url} timed out after {timeout} seconds'.format(url=url, timeout=timeout))

@@ -44,8 +44,8 @@ class UbersmithRequest(object):
             raise UbersmithTimeout(self.url, self.timeout)
 
     def _build_request_params(self, kwargs):
-        _methods = ".".join(self.methods)
-        kwargs['method'] = "{0}.{1}".format(self.module, _methods)
+        _methods = '.'.join(self.methods)
+        kwargs['method'] = '{0}.{1}'.format(self.module, _methods)
 
     @staticmethod
     def process_ubersmith_response(response):
@@ -60,6 +60,6 @@ class UbersmithRequest(object):
                     response_json['error_message']
                 )
 
-            return response.json()["data"]
+            return response.json()['data']
 
         return response.content
