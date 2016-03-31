@@ -10,9 +10,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from requests.exceptions import ConnectionError, Timeout
-
-from ubersmith_client.exceptions import UbersmithConnectionError, UbersmithTimeout
 from ubersmith_client.ubersmith_request_get import UbersmithRequestGet
 from ubersmith_client.ubersmith_request_post import UbersmithRequestPost
 
@@ -26,9 +23,4 @@ class UbersmithApi(object):
         self.ubersmith_request = UbersmithRequestGet if use_http_get else UbersmithRequestPost
 
     def __getattr__(self, module):
-        try:
-            return self.ubersmith_request(self.url, self.user, self.password, module, self.timeout)
-        except ConnectionError:
-            raise UbersmithConnectionError(self.url)
-        except Timeout:
-            raise UbersmithTimeout(self.url, self.timeout)
+        return self.ubersmith_request(self.url, self.user, self.password, module, self.timeout)

@@ -19,9 +19,10 @@ class UbersmithRequestPost(UbersmithRequest):
     def __call__(self, **kwargs):
         self._build_request_params(kwargs)
 
-        response = requests.post(url=self.url,
-                                 auth=(self.user, self.password),
-                                 timeout=self.timeout,
-                                 data=kwargs)
+        response = self._process_request(method=requests.post,
+                                         url=self.url,
+                                         auth=(self.user, self.password),
+                                         timeout=self.timeout,
+                                         data=kwargs)
 
         return UbersmithRequest.process_ubersmith_response(response)
