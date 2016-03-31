@@ -12,16 +12,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import unittest
-from mock import Mock
+
+import ubersmith_client
+from mock import Mock, patch
 
 from hamcrest import assert_that, raises, calling
+from requests.exceptions import ConnectionError, Timeout
 
-from ubersmith_client.exceptions import UbersmithException, BadRequest, UnknownError, Forbidden, NotFound, Unauthorized
+from ubersmith_client.exceptions import UbersmithException, BadRequest, UnknownError, Forbidden, NotFound, Unauthorized, UbersmithConnectionError, \
+    UbersmithTimeout
 from tests.ubersmith_json.response_data_structure import a_response_data
 from ubersmith_client.ubersmith_request import UbersmithRequest
 
 
 class UbersmithRequestTest(unittest.TestCase):
+    def setUp(self):
+        self.url = 'http://ubersmith.example.com/'
+        self.username = 'admin'
+        self.password = 'test'
+
     def test_process_ubersmith_response(self):
         response = Mock()
         response.status_code = 200
@@ -57,3 +66,17 @@ class UbersmithRequestTest(unittest.TestCase):
         response.json = Mock(return_value={'status': False, 'error_code': 42, 'error_message': 'come and watch tv'})
         assert_that(calling(UbersmithRequest.process_ubersmith_response).with_args(response),
                     raises(UbersmithException, "Error code 42 - message: come and watch tv"))
+
+    @patch('ubersmith_client.ubersmith_request_post.requests')
+    def test_api_method_returns_handle_connection_error_exception(self, requests_mock):
+        ubersmith_api = ubersmith_client.api.init(self.url, self.username, self.password)
+        requests_mock.post = Mock(side_effect=ConnectionError())
+
+        assert_that(calling(ubersmith_api.client.list), raises(UbersmithConnectionError))
+
+    @patch('ubersmith_client.ubersmith_request_post.requests')
+    def test_api_method_returns_handle_timeout_exception(self, requests_mock):
+        ubersmith_api = ubersmith_client.api.init(self.url, self.username, self.password)
+        requests_mock.post = Mock(side_effect=Timeout())
+
+        assert_that(calling(ubersmith_api.client.list), raises(UbersmithTimeout))

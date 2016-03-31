@@ -11,8 +11,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 from abc import abstractmethod
+from requests import Timeout, ConnectionError
 
-from ubersmith_client.exceptions import get_exception_for, UbersmithException
+from ubersmith_client.exceptions import get_exception_for, UbersmithException, UbersmithConnectionError, \
+    UbersmithTimeout
 
 
 class UbersmithRequest(object):
@@ -31,6 +33,15 @@ class UbersmithRequest(object):
     @abstractmethod
     def __call__(self, **kwargs):
         raise
+
+    def _process_request(self, method, **kwargs):
+        try:
+            return method(**kwargs)
+
+        except ConnectionError:
+            raise UbersmithConnectionError(self.url)
+        except Timeout:
+            raise UbersmithTimeout(self.url, self.timeout)
 
     def _build_request_params(self, kwargs):
         _methods = ".".join(self.methods)

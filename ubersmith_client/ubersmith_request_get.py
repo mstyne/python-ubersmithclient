@@ -16,16 +16,13 @@ from ubersmith_client.ubersmith_request import UbersmithRequest
 
 
 class UbersmithRequestGet(UbersmithRequest):
-    def __getattr__(self, function):
-        self.methods.append(function)
-        return self
-
     def __call__(self, **kwargs):
         self._build_request_params(kwargs)
 
-        response = requests.get(url=self.url,
-                                auth=(self.user, self.password),
-                                timeout=self.timeout,
-                                params=kwargs)
+        response = self._process_request(method=requests.get,
+                                         url=self.url,
+                                         auth=(self.user, self.password),
+                                         timeout=self.timeout,
+                                         params=kwargs)
 
         return UbersmithRequest.process_ubersmith_response(response)
