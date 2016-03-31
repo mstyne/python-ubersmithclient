@@ -60,6 +60,6 @@ class UbersmithRequest(object):
                     response_json['error_message']
                 )
 
-            return response.json()['data']
+            return response_json['data']
 
         return response.content
