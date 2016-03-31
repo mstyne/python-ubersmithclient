@@ -60,3 +60,14 @@ class Unauthorized(UbersmithException):
 class UnknownError(UbersmithException):
     def __init__(self, code):
         super(UnknownError, self).__init__(code=code, message='An unknown error occurred')
+
+
+class UbersmithConnectionError(UbersmithException):
+    def __init__(self, url):
+        super(UbersmithConnectionError, self).__init__(message="Could not connect to {0}".format(url))
+
+
+class UbersmithTimeout(UbersmithException):
+    def __init__(self, url, timeout):
+        super(UbersmithTimeout, self)\
+            .__init__(message='Trying to connect to {url} times out after {timeout}'.format(url=url, timeout=timeout))
