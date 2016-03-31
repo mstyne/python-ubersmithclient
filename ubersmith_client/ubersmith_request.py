@@ -32,7 +32,7 @@ class UbersmithRequest(object):
 
     @abstractmethod
     def __call__(self, **kwargs):
-        raise
+        raise AttributeError
 
     def _process_request(self, method, **kwargs):
         try:
@@ -44,19 +44,22 @@ class UbersmithRequest(object):
             raise UbersmithTimeout(self.url, self.timeout)
 
     def _build_request_params(self, kwargs):
-        _methods = ".".join(self.methods)
-        kwargs['method'] = "{0}.{1}".format(self.module, _methods)
+        _methods = '.'.join(self.methods)
+        kwargs['method'] = '{0}.{1}'.format(self.module, _methods)
 
     @staticmethod
     def process_ubersmith_response(response):
         if response.status_code < 200 or response.status_code >= 400:
             raise get_exception_for(status_code=response.status_code)
 
-        response_json = response.json()
-        if not response_json['status']:
-            raise UbersmithException(
-                response_json['error_code'],
-                response_json['error_message']
-            )
+        if response.headers['content-type'] == 'application/json':
+            response_json = response.json()
+            if not response_json['status']:
+                raise UbersmithException(
+                    response_json['error_code'],
+                    response_json['error_message']
+                )
 
-        return response.json()["data"]
+            return response_json['data']
+
+        return response.content
