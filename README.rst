@@ -30,7 +30,7 @@ API
 
  :user: API username
  :password: API Password or token
- :timeout: api timeout given to requests
+ :timeout: api timeout given to requests (type: float)
 
    *Default:* ``60``
  :use_http_get:
