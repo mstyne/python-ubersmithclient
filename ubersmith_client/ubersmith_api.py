@@ -19,7 +19,7 @@ class UbersmithApi(object):
         self.url = url
         self.user = user
         self.password = password
-        self.timeout = timeout
+        self.timeout = float(timeout)
         self.ubersmith_request = UbersmithRequestGet if use_http_get else UbersmithRequestPost
 
     def __getattr__(self, module):
