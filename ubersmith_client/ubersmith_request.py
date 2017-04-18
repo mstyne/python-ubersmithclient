@@ -38,7 +38,6 @@ class UbersmithRequest(object):
     def _process_request(self, method, **kwargs):
         try:
             return method(**kwargs)
-
         except ConnectionError:
             raise exceptions.UbersmithConnectionError(self.url)
         except Timeout:

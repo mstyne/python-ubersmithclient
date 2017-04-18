@@ -26,7 +26,8 @@ class UbersmithRequestFormEncodingTest(unittest.TestCase):
                                              sentinel.module, sentinel.timeout)
         self._standard_kwargs = dict(auth=(sentinel.username, sentinel.password),
                                      timeout=sentinel.timeout,
-                                     url=sentinel.url)
+                                     url=sentinel.url,
+                                     headers={'user-agent': 'python-ubersmithclient'})
 
     @patch('ubersmith_client.ubersmith_request_get.requests')
     def test_get_with_list(self, request_mock):

@@ -9,6 +9,7 @@ Ubersmith API Client for Python
 
 Usage
 -----
+
 .. code:: python
 
     import ubersmith_client
@@ -20,7 +21,7 @@ Usage
      >>> 1265
 
 API
----------
+---
 
 **ubersmith_client.api.init(url, user, password, timeout, use_http_get)**
  :url:

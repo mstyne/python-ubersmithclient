@@ -27,6 +27,7 @@ class UbersmithRequestPost(UbersmithRequest):
                                          url=self.url,
                                          auth=(self.user, self.password),
                                          timeout=self.timeout,
+                                         headers={'user-agent': 'python-ubersmithclient'},
                                          data=params)
 
         return UbersmithRequest.process_ubersmith_response(response)

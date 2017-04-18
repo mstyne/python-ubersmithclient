@@ -83,7 +83,8 @@ class UbersmithRequestPostTest(unittest.TestCase):
         response.json = MagicMock(return_value=returning)
 
         def assert_called_with():
-            requests_mock.post.assert_called_with(auth=self.auth, timeout=self.timeout, url=self.url, data=kwargs)
+            requests_mock.post.assert_called_with(auth=self.auth, timeout=self.timeout, url=self.url, data=kwargs,
+                                                  headers={'user-agent': 'python-ubersmithclient'})
             response.json.assert_called_with()
 
         return assert_called_with
