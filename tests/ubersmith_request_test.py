@@ -11,17 +11,18 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
 import unittest
 
 import ubersmith_client
 from mock import Mock, patch
 from hamcrest import assert_that, raises, calling, equal_to
 from requests.exceptions import ConnectionError, Timeout
-from ubersmith_client.exceptions import UbersmithException, BadRequest, UnknownError, Forbidden, NotFound, Unauthorized, \
-    UbersmithConnectionError, \
-    UbersmithTimeout
-from tests.ubersmith_json.response_data_structure import a_response_data
+
+from ubersmith_client import exceptions
 from ubersmith_client.ubersmith_request import UbersmithRequest
+
+from tests.ubersmith_json.response_data_structure import a_response_data
 
 
 class UbersmithRequestTest(unittest.TestCase):
@@ -50,35 +51,40 @@ class UbersmithRequestTest(unittest.TestCase):
 
     def test_process_ubersmith_response_raise_exception(self):
         response = Mock(status_code=400, headers={'content-type': 'application/json'})
-        assert_that(calling(UbersmithRequest.process_ubersmith_response).with_args(response), raises(BadRequest))
+        assert_that(calling(UbersmithRequest.process_ubersmith_response).with_args(response),
+                    raises(exceptions.BadRequest))
 
         response.status_code = 401
-        assert_that(calling(UbersmithRequest.process_ubersmith_response).with_args(response), raises(Unauthorized))
+        assert_that(calling(UbersmithRequest.process_ubersmith_response).with_args(response),
+                    raises(exceptions.Unauthorized))
 
         response.status_code = 403
-        assert_that(calling(UbersmithRequest.process_ubersmith_response).with_args(response), raises(Forbidden))
+        assert_that(calling(UbersmithRequest.process_ubersmith_response).with_args(response),
+                    raises(exceptions.Forbidden))
 
         response.status_code = 404
-        assert_that(calling(UbersmithRequest.process_ubersmith_response).with_args(response), raises(NotFound))
+        assert_that(calling(UbersmithRequest.process_ubersmith_response).with_args(response),
+                    raises(exceptions.NotFound))
 
         response.status_code = 500
-        assert_that(calling(UbersmithRequest.process_ubersmith_response).with_args(response), raises(UnknownError))
+        assert_that(calling(UbersmithRequest.process_ubersmith_response).with_args(response),
+                    raises(exceptions.UnknownError))
 
         response.status_code = 200
         response.json = Mock(return_value={'status': False, 'error_code': 42, 'error_message': 'come and watch tv'})
         assert_that(calling(UbersmithRequest.process_ubersmith_response).with_args(response),
-                    raises(UbersmithException, 'Error code 42 - message: come and watch tv'))
+                    raises(exceptions.UbersmithException, 'Error code 42 - message: come and watch tv'))
 
     @patch('ubersmith_client.ubersmith_request_post.requests')
     def test_api_method_returns_handle_connection_error_exception(self, requests_mock):
         ubersmith_api = ubersmith_client.api.init(self.url, self.username, self.password)
         requests_mock.post = Mock(side_effect=ConnectionError())
 
-        assert_that(calling(ubersmith_api.client.list), raises(UbersmithConnectionError))
+        assert_that(calling(ubersmith_api.client.list), raises(exceptions.UbersmithConnectionError))
 
     @patch('ubersmith_client.ubersmith_request_post.requests')
     def test_api_method_returns_handle_timeout_exception(self, requests_mock):
         ubersmith_api = ubersmith_client.api.init(self.url, self.username, self.password)
         requests_mock.post = Mock(side_effect=Timeout())
 
-        assert_that(calling(ubersmith_api.client.list), raises(UbersmithTimeout))
+        assert_that(calling(ubersmith_api.client.list), raises(exceptions.UbersmithTimeout))

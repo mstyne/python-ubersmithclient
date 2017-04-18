@@ -11,11 +11,13 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
 import unittest
 
 from hamcrest import assert_that, equal_to
 from mock import patch, MagicMock
 import ubersmith_client
+
 from tests.ubersmith_json.response_data_structure import a_response_data
 
 
