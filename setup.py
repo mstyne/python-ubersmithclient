@@ -13,10 +13,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-#!/usr/bin/env python
 from setuptools import setup
 
 setup(
-    setup_requires=["pbr>=1.8"],
+    setup_requires=['pbr'],
     pbr=True,
 )
