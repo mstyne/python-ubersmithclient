@@ -1,3 +1,4 @@
+# Copyright 2017 Internap.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -10,11 +11,11 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
 from abc import abstractmethod
 from requests import Timeout, ConnectionError
 
-from ubersmith_client.exceptions import get_exception_for, UbersmithException, UbersmithConnectionError, \
-    UbersmithTimeout
+from ubersmith_client import exceptions
 
 
 class UbersmithRequest(object):
@@ -39,9 +40,9 @@ class UbersmithRequest(object):
             return method(**kwargs)
 
         except ConnectionError:
-            raise UbersmithConnectionError(self.url)
+            raise exceptions.UbersmithConnectionError(self.url)
         except Timeout:
-            raise UbersmithTimeout(self.url, self.timeout)
+            raise exceptions.UbersmithTimeout(self.url, self.timeout)
 
     def _build_request_params(self, kwargs):
         _methods = '.'.join(self.methods)
@@ -50,16 +51,13 @@ class UbersmithRequest(object):
     @staticmethod
     def process_ubersmith_response(response):
         if response.status_code < 200 or response.status_code >= 400:
-            raise get_exception_for(status_code=response.status_code)
+            raise exceptions.get_exception_for(status_code=response.status_code)
 
         if response.headers['content-type'] == 'application/json':
             response_json = response.json()
             if not response_json['status']:
-                raise UbersmithException(
-                    response_json['error_code'],
-                    response_json['error_message']
-                )
-
+                raise exceptions.UbersmithException(response_json['error_code'],
+                                                    response_json['error_message'])
             return response_json['data']
 
         return response.content
