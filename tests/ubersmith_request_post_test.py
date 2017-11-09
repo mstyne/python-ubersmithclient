@@ -13,11 +13,10 @@
 # limitations under the License.
 
 import unittest
-
 from hamcrest import assert_that, equal_to, calling, raises
 from mock import patch, MagicMock
-import ubersmith_client
 
+import ubersmith_client
 from tests.ubersmith_json.response_data_structure import a_response_data
 
 
@@ -77,13 +76,46 @@ class UbersmithRequestPostTest(unittest.TestCase):
         self.expect_a_ubersmith_call_post(requests_mock, method='client.miss', returning=data)
         assert_that(calling(ubersmith_api.client.miss), raises(ubersmith_client.exceptions.UbersmithException))
 
-    def expect_a_ubersmith_call_post(self, requests_mock, returning=None, status_code=200, **kwargs):
-        response = MagicMock(status_code=status_code, headers={'content-type': 'application/json'})
+    @patch('ubersmith_client.ubersmith_request_post.requests')
+    def test_api_post_support_ticket_submit_allow_file_upload(self, request_mock):
+        expected_files = {'attach[0]': ('filename.pdf', b'filecontent')}
+        expected_call = self.expect_a_ubersmith_call_post_with_files(requests_mock=request_mock,
+                                                                     method='support.ticket_submit',
+                                                                     subject='that I used to know',
+                                                                     body='some body',
+                                                                     returning=a_response_data(data='42'),
+                                                                     files=expected_files)
+
+        ubersmith_api = ubersmith_client.api.init(self.url, self.username, self.password)
+
+        response = ubersmith_api.support.ticket_submit(subject='that I used to know',
+                                                       body='some body',
+                                                       files=expected_files)
+
+        assert_that(response, equal_to('42'))
+
+        expected_call()
+
+    def expect_a_ubersmith_call_post(self, requests_mock, returning=None, **kwargs):
+        response = MagicMock(status_code=200, headers={'content-type': 'application/json'})
         requests_mock.post = MagicMock(return_value=response)
         response.json = MagicMock(return_value=returning)
 
         def assert_called_with():
             requests_mock.post.assert_called_with(auth=self.auth, timeout=self.timeout, url=self.url, data=kwargs,
+                                                  headers={'user-agent': 'python-ubersmithclient'})
+            response.json.assert_called_with()
+
+        return assert_called_with
+
+    def expect_a_ubersmith_call_post_with_files(self, requests_mock, returning=None, files=None, **kwargs):
+        response = MagicMock(status_code=200, headers={'content-type': 'application/json'})
+        requests_mock.post = MagicMock(return_value=response)
+        response.json = MagicMock(return_value=returning)
+
+        def assert_called_with():
+            requests_mock.post.assert_called_with(auth=self.auth, timeout=self.timeout, url=self.url, data=kwargs,
+                                                  files=files,
                                                   headers={'user-agent': 'python-ubersmithclient'})
             response.json.assert_called_with()
 
