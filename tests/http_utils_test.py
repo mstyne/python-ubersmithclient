@@ -66,3 +66,9 @@ class HttpUtilsTest(unittest.TestCase):
             'true': True,
             'false': False
         }, result)
+
+    def test_filtering_files(self):
+        result = _http_utils.form_encode_without_files(dict(true=True, files=dict(attach='some_binary_data')))
+        self.assertDictEqual({
+            'true': True,
+        }, result)

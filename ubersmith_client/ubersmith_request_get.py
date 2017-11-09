@@ -21,13 +21,16 @@ from ubersmith_client.ubersmith_request import UbersmithRequest
 class UbersmithRequestGet(UbersmithRequest):
     def __call__(self, **kwargs):
         self._build_request_params(kwargs)
-        params = _http_utils.form_encode(kwargs)
+        params = _http_utils.form_encode_without_files(kwargs)
+        requests_get_args = dict(method=requests.get,
+                                 url=self.url,
+                                 auth=(self.user, self.password),
+                                 timeout=self.timeout,
+                                 headers={'user-agent': 'python-ubersmithclient'},
+                                 params=params)
+        if 'files' in kwargs:
+            requests_get_args['files'] = kwargs['files']
 
-        response = self._process_request(method=requests.get,
-                                         url=self.url,
-                                         auth=(self.user, self.password),
-                                         timeout=self.timeout,
-                                         headers={'user-agent': 'python-ubersmithclient'},
-                                         params=params)
+        response = self._process_request(**requests_get_args)
 
         return UbersmithRequest.process_ubersmith_response(response)

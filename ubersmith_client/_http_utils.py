@@ -22,6 +22,10 @@ def form_encode(data):
     return exploded_data
 
 
+def form_encode_without_files(data):
+    return form_encode({k: v for k, v in data.items() if k is not 'files'})
+
+
 def _explode_enumerable(k, v):
     exploded_items = []
     if isinstance(v, list) or isinstance(v, tuple):
