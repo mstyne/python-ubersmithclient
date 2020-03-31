@@ -23,7 +23,7 @@ def form_encode(data):
 
 
 def form_encode_without_files(data):
-    return form_encode({k: v for k, v in data.items() if k is not 'files'})
+    return form_encode({k: v for k, v in data.items() if k != 'files'})
 
 
 def _explode_enumerable(k, v):
