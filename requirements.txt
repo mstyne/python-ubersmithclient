@@ -1,1 +1,2 @@
-requests
+requests==2.21.0;python_version<'3.6'
+request;python_version>='3.6'
